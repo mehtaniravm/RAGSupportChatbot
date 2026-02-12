@@ -20,7 +20,6 @@ Frontend: Lightweight embeddable JS widget (no heavy framework required)
 
 ## Step-by-Step Guide
 ### Step 1: Prerequisites
-
 Python 3.11+
 Ollama installed and running → ollama pull llama3.2 (or llama3.2:3b for faster testing)
 Git
