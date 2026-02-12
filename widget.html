@@ -1,0 +1,57 @@
+<div id="support-chat" style="position:fixed;bottom:20px;right:20px;z-index:9999;">
+  <button onclick="toggleChat()" style="background:#000;color:white;padding:12px 20px;border-radius:9999px;border:none;cursor:pointer;">
+    💬 Need help?
+  </button>
+  
+  <div id="chat-window" style="display:none;background:white;width:380px;height:520px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);margin-top:10px;overflow:hidden;flex-direction:column;">
+    <div id="chat-messages" style="flex:1;padding:15px;overflow-y:auto;"></div>
+    <input id="chat-input" placeholder="Type your message..." style="padding:12px;border:none;border-top:1px solid #eee;" onkeypress="if(event.key==='Enter') sendMessage()">
+  </div>
+</div>
+
+<script>
+const API_URL = "http://localhost:8000/chat";   // Change to your deployed URL
+const SESSION_ID = "user-" + Math.random().toString(36).slice(2);
+
+function toggleChat() {
+  const win = document.getElementById("chat-window");
+  win.style.display = win.style.display === "flex" ? "none" : "flex";
+}
+
+async function sendMessage() {
+  const input = document.getElementById("chat-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+  
+  addMessage("user", msg);
+  input.value = "";
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: msg, session_id: SESSION_ID})
+  });
+  const data = await res.json();
+
+  addMessage("bot", data.response);
+
+  if (data.escalate) {
+    addMessage("bot", "✅ A support agent has been notified with full context.");
+    // Optional: window.open(your_internal_support_url);
+  }
+}
+
+function addMessage(sender, text) {
+  const div = document.createElement("div");
+  div.style.marginBottom = "10px";
+  div.style.padding = "8px";
+  div.style.borderRadius = "8px";
+  div.style.maxWidth = "80%";
+  div.style.background = sender === "user" ? "#007bff" : "#f1f1f1";
+  div.style.color = sender === "user" ? "white" : "black";
+  div.style.alignSelf = sender === "user" ? "flex-end" : "flex-start";
+  div.innerHTML = text;
+  document.getElementById("chat-messages").appendChild(div);
+  div.scrollIntoView();
+}
+</script>
